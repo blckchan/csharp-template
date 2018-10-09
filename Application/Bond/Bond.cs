@@ -1,6 +1,6 @@
 using Ont.SmartContract.Framework;
 using Ont.SmartContract.Framework.Services.Ont;
-using Helper = Neo.SmartContract.Framework.Helper;
+using Helper = Ont.SmartContract.Framework.Helper;
 using System;
 using System.Numerics;
 
