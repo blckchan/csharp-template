@@ -10,10 +10,10 @@ namespace OEPS
     public class OEP4 : SmartContract
     {
         //Token Settings
-        public static string Name() => "OEP-4 Token";
-        public static string Symbol() => "OEP4";
+        public static string name() => "OEP-4 Token";
+        public static string symbol() => "OEP4";
         public static readonly byte[] owner = "AGjD4Mo25kzcStyh1stp7tXkUuMopD43NT".ToScriptHash();
-        public static byte Decimal() => 8;
+        public static int decimals = 8;
         private const ulong factor = 100000000; //decided by Decimals()
         private const ulong totalAmount = 10000000000 * factor;
 
@@ -40,30 +40,30 @@ namespace OEPS
 
         public static Object Main(string operation, params object[] args)
         {
-            if (operation == "Init") return Init();
-            if (operation == "Decimal") return Decimal();
-            if (operation == "TotalSupply") return TotalSupply();
-            if (operation == "Name") return Name();
-            if (operation == "Symbol") return Symbol();
-            if (operation == "BalanceOf")
+            if (operation == "init") return init();
+            if (operation == "decimal") return decimals;
+            if (operation == "totalSupply") return totalSupply();
+            if (operation == "name") return name();
+            if (operation == "symbol") return symbol();
+            if (operation == "balanceOf")
             {
                 if (args.Length != 1) return 0;
                 byte[] address = (byte[])args[0];
-                return BalanceOf(address);
+                return balanceOf(address);
             }
-            if (operation == "Transfer")
+            if (operation == "transfer")
             {
                 if (args.Length != 3) return false;
                 byte[] from = (byte[])args[0];
                 byte[] to = (byte[])args[1];
                 BigInteger value = (BigInteger)args[2];
-                return Transfer(from, to, value);
+                return transfer(from, to, value);
             }
-            if (operation == "TransferMulti")
+            if (operation == "transferMulti")
             {
-                return TransferMulti(args);
+                return transferMulti(args);
             }
-            if (operation == "Approve")
+            if (operation == "approve")
             {
                 if (args.Length != 3) return false;
                 byte[] owner = (byte[])args[0];
@@ -77,16 +77,16 @@ namespace OEPS
                     return false;
                 }
                 BigInteger value = (BigInteger)args[2];
-                return Approve(owner, spender, value);
+                return approve(owner, spender, value);
             }
-            if (operation == "Allowance")
+            if (operation == "allowance")
             {
                 if (args.Length != 2) return 0;
                 byte[] owner = (byte[])args[0];
                 byte[] spender = (byte[])args[0];
-                return Allowance(owner, spender);
+                return allowance(owner, spender);
             }
-            if (operation == "TransferFrom")
+            if (operation == "transferFrom")
             {
                 if (args.Length != 4) return false;
                 byte[] sender = (byte[])args[0];
@@ -105,7 +105,7 @@ namespace OEPS
                     return false;
                 }
                 BigInteger amount = (BigInteger)args[3];
-                return TransferFrom(sender, from, to, amount);
+                return transferFrom(sender, from, to, amount);
             }
             return false;
         }
@@ -113,7 +113,7 @@ namespace OEPS
         /// <summary>initialize contract parameter</summary>
         /// <returns>initialize result, success or failure</returns>
         //[DisplayName("init")]
-        public static bool Init()
+        public static bool init()
         {
             byte[] total_supply = Storage.Get(Storage.CurrentContext, "totalSupply");
             if (total_supply.Length != 0) return false;
@@ -126,7 +126,7 @@ namespace OEPS
 
         /// <summary>query the total supply of token</summary>
         /// <returns>total supply of token </returns>
-        public static BigInteger TotalSupply()
+        public static BigInteger totalSupply()
         {
             return Storage.Get(Storage.CurrentContext, "totalSupply").AsBigInteger();
         }
@@ -135,7 +135,7 @@ namespace OEPS
         /// <summary>query balance of any address</summary>
         /// <returns>balance of the address</returns>
         /// <param name="address">account or contract address</param>
-        public static BigInteger BalanceOf(byte[] address)
+        public static BigInteger balanceOf(byte[] address)
         {
             return Storage.Get(Storage.CurrentContext, address).AsBigInteger();
         }
@@ -148,7 +148,7 @@ namespace OEPS
         /// <param name="from">transfer sender address</param>
         /// <param name="to">transfer receiver address</param>
         /// <param name="value">transfer amount</param>
-        public static bool Transfer(byte[] from, byte[] to, BigInteger value)
+        public static bool transfer(byte[] from, byte[] to, BigInteger value)
         {
             if (value < 0) return false;
             if (!Runtime.CheckWitness(from)) return false;
@@ -176,12 +176,12 @@ namespace OEPS
         ///    public byte[] To; // transfer receiver
         ///    public BigInteger Amount; //transfer amount
         ///}
-        public static bool TransferMulti(object[] args)
+        public static bool transferMulti(object[] args)
         {
             for (int i = 0; i < args.Length; i++)
             {
                 State state = (State)args[i];
-                if (!Transfer(state.From, state.To, state.Amount)) throw new Exception();
+                if (!transfer(state.From, state.To, state.Amount)) throw new Exception();
             }
             return true;
         }
@@ -194,14 +194,14 @@ namespace OEPS
         /// <param name="from">approve owner address</param>
         /// <param name="to">approve spender address</param>
         /// <param name="value">approve amount</param>
-        public static bool Approve(byte[] owner, byte[] spender, BigInteger amount)
+        public static bool approve(byte[] owner, byte[] spender, BigInteger amount)
         {
             if (amount < 0) return false;
             if (!Runtime.CheckWitness(owner)) return false;
-            if (!ValidateAddress(spender)) return false;
+            if (!validateAddress(spender)) return false;
             if (owner == spender) return false;
 
-            BigInteger ownerBalance = BalanceOf(owner);
+            BigInteger ownerBalance = balanceOf(owner);
             if (ownerBalance < amount) return false;
 
             Storage.Put(Storage.CurrentContext, approvePrefix.Concat(owner).Concat(spender), amount);
@@ -219,14 +219,14 @@ namespace OEPS
         /// <param name="from">approve owner address</param>
         /// <param name="to">approve spender address</param>
         /// <param name="value">approve amount</param>
-        public static bool TransferFrom(byte[] spender, byte[] from, byte[] to, BigInteger amount)
+        public static bool transferFrom(byte[] spender, byte[] from, byte[] to, BigInteger amount)
         {
             if (amount < 0) return false;
             if (!Runtime.CheckWitness(spender)) return false;
-            if (!ValidateAddress(from)) return false;
-            if (!ValidateAddress(to)) return false;
+            if (!validateAddress(from)) return false;
+            if (!validateAddress(to)) return false;
             if (from == to) return true;
-            if (BalanceOf(from) < amount) return false;
+            if (balanceOf(from) < amount) return false;
 
             byte[] approveKey = approvePrefix.Concat(from).Concat(spender);
             BigInteger approveValue = Storage.Get(Storage.CurrentContext, approveKey).AsBigInteger();
@@ -236,22 +236,22 @@ namespace OEPS
             else
                 Storage.Put(Storage.CurrentContext, approveKey, approveValue - amount);
 
-            Storage.Put(Storage.CurrentContext, from, BalanceOf(from) - amount);
-            Storage.Put(Storage.CurrentContext, from, BalanceOf(to) - amount);
+            Storage.Put(Storage.CurrentContext, from, balanceOf(from) - amount);
+            Storage.Put(Storage.CurrentContext, from, balanceOf(to) - amount);
 
-            return Transfer(from, to, amount);
+            return transfer(from, to, amount);
         }
 
         /// <summary>query `spender` can withdraw the amount of token from `owner` account </summary>
         /// <returns>withdraw amount of token</returns>
         /// <param name="owner">account or contract address</param>
         /// <param name="spender">account or contract address</param>
-        public static BigInteger Allowance(byte[] owner, byte[] spender)
+        public static BigInteger allowance(byte[] owner, byte[] spender)
         {
             return Storage.Get(Storage.CurrentContext, approvePrefix.Concat(owner).Concat(spender)).AsBigInteger();
         }
 
-        private static bool ValidateAddress(byte[] address)
+        private static bool validateAddress(byte[] address)
         {
             if (address.Length != 20) return false;
             if (address.AsBigInteger() == 0) return false;
