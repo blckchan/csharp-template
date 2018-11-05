@@ -43,6 +43,8 @@ These templates are divided into different directory structures according to dif
 
   TODO
   
-- [OEP5]
+- [OEPS]
   
-  TODO
+  This directory include the OEPS protocol smart contract template
+  [OEPS Proposal]( https://github.com/ontio/OEPs/tree/master/OEPS)
+ 
