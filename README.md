@@ -45,6 +45,6 @@ These templates are divided into different directory structures according to dif
   
 - [OEPS]
   
-  This directory include the [OEPS Proposal]( https://github.com/ontio/OEPs/tree/master/OEPS) protocol smart contract template
+  This directory include the [OEPS Proposal]( https://github.com/ontio/OEPs/tree/master/OEPS) smart contract template
 
  
